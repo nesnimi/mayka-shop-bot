@@ -1,0 +1,30 @@
+async def show_product(call: CallbackQuery, brand: str, index: int):
+    product = products[brand][index]
+    total = len(products[brand])
+    caption = f"""
+🖼️ *{product['name']}*
+💰 *Стоимость:* {product['price']}₽
+
+{product['description']}
+
+📌 *[{index + 1} из {total}]*
+{product.get('more_photos', '')}
+    """.strip()
+
+    media = InputMediaPhoto(
+        media=product["image"],
+        caption=caption,
+        parse_mode="HTML"
+    )
+    keyboard = get_product_keyboard(brand, index)
+
+    try:
+        await call.message.edit_media(media=media, reply_markup=keyboard)
+    except Exception:
+        sent = await call.message.answer_photo(
+            photo=product["image"],
+            caption=caption,
+            reply_markup=keyboard,
+            parse_mode="HTML"
+        )
+        await call.message.delete()
